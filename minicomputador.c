@@ -37,7 +37,7 @@ void criar_usuario(void);
 char* cria_arrays(char*);
 
 //função para decisão de usuário de sim ou não
-int simnao(void);
+int input(void);
 
 
 // início da função main
@@ -47,24 +47,23 @@ int main(void)
     int usuarioToken;
     //ponteiro para estrutura FILE
     FILE *rootFile;
-    //cria variável para escolha do usuário
-    int choiceUser = 0;
+
     //se o programa não encontrar o arquivo de usuário root, pergunta ao usuário se ele deseja criar um novo.
     if(rootCheck() == 0)
     {
-        printf("\n Voce esta executando este programa em uma maquina nova?\n(0) para Nao\n(1) para sim\n");
-        choiceUser = simnao();
+        printf("\nVoce esta executando este programa em uma maquina nova?\n(0) para Nao\n(1) para sim\n");
         
         //se o usuário  decidir não criar um novo arquivo, uma mensagem sobre o possível problema é mostrada.
-        if (choiceUser == 0)
+        if (input() == 0)
         {
             printf("Algum erro deve ter ocorrido ao tentar acessar o arquivo root\nO programa nao pode funionar corretamente sem o arquivo root e sera terminado.\n");
         }
+            
+        if (input() == 1)
+        {
             //cria arquivo root
             //testa se aquivo root pode ser criado
-        if (choiceUser == 1)
-        {
-            if ((rootFile = fopen("root.txt", "w")) == NULL)
+            if ((rootFile = fopen("root.txt", "wb")) == NULL)
             {
                 printf("houve algum erro ao criar o arquivo de usuário root.\n");
             }
@@ -84,13 +83,18 @@ int main(void)
     
     return 0; 
 }
-
-int simnao(void)
+//função para escolha do usuário
+int input(void)
 {
+    //cria variável inteira
     int escolha = 0;
-    scanf("%d",escolha);
+    //recebe imput do usuário para
+    scanf("%d",&escolha);
+    printf("escolha");
     return escolha;
+    
 }
+
 //função para comparar arrays.
 int check_arrays(char array1[], char array2[])
 {
@@ -144,7 +148,7 @@ int rootCheck(void)
     if ( ( rootFile = fopen("root.txt", "r")) == NULL){  
     
         printf("O arquivo de usuario root nao foi encontrado");
-        fclose(rootFile);
+       fclose(rootFile);
         return 0;
     }
     else
@@ -218,7 +222,7 @@ void criarUserName(char *Entry)
     printarray(entrada1);
     printf("\n");
     printf("Você deseja reescreve-lo?");
-    while (simnao() == 0)
+    while (input() == 0)
     {
         criarUserName(entrada1);
     }
