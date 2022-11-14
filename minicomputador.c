@@ -19,22 +19,22 @@ Primeiro vamos fazer o menu/interface do usuário para selecionar entre as func�
 int rootCheck(void);
 
 //função para criar senha
-char* criarSenha(char *retorno);
+void criarSenha(char *retorno);
 
 //função para nome de usuário
 void criarUserName(char *entry);
 
 //função para mosrar arrays na tela
-void printarray(char *arrayPointer);
+void print_array(char *entrada);
 
 //função para comprar arrays
-int check_arrays(char array1[], char array2[]);
+int check_arrays(char *array1, char *array2);
 
 //função para criar usuário
 void criar_usuario(void);
 
 //fução para criar arrays
-char* cria_arrays(char*);
+void fillaray(char *saida);
 
 //função para decisão de usuário de sim ou não
 int input(void);
@@ -48,18 +48,22 @@ int main(void)
     //ponteiro para estrutura FILE
     FILE *rootFile;
 
+    //variável para escolha do usuário
+    int choice;
+
     //se o programa não encontrar o arquivo de usuário root, pergunta ao usuário se ele deseja criar um novo.
     if(rootCheck() == 0)
     {
         printf("\nVoce esta executando este programa em uma maquina nova?\n(0) para Nao\n(1) para sim\n");
+        choice = input();
         
         //se o usuário  decidir não criar um novo arquivo, uma mensagem sobre o possível problema é mostrada.
-        if (input() == 0)
+        if (choice == 0)
         {
             printf("Algum erro deve ter ocorrido ao tentar acessar o arquivo root\nO programa nao pode funionar corretamente sem o arquivo root e sera terminado.\n");
         }
             
-        if (input() == 1)
+        if (choice == 1)
         {
             //cria arquivo root
             //testa se aquivo root pode ser criado
@@ -69,7 +73,7 @@ int main(void)
             }
             else
             {
-                //chama a função "root cration para criar o novo usuário root"
+                //chama a função "criar usuário para criar o usuário root"
                 criar_usuario();
             }
         }
@@ -90,47 +94,46 @@ int input(void)
     int escolha = 0;
     //recebe imput do usuário para
     scanf("%d",&escolha);
-    printf("escolha");
     return escolha;
     
 }
 
 //função para comparar arrays.
-int check_arrays(char array1[], char array2[])
+int check_arrays(char *array1, char *array2)
 {
-   
-    int contador = 0;
-    while ((array1[contador] != '\n') && (array2[contador] != '\n'))
+    //variável contator para loop
+    int i = 0;
+    int cont2 = 0;
+    while( array1[i] != '\0' || array2[i] != '\0')
     {
-        contador++;
+        if (array1[i] != array2[i]) 
+        {
+            return 0;
+        }
+        i++;
+        
     }
+    return 1;
+    
         
 }
 
 //função para printar arrays
-void printarray(char *arraypointer)
+void print_array(char *entrada)
 {
     int i = 0;
-    while( arraypointer[i] != '\0')
+    while( entrada[i] != '\0')
     {
         i++;
-        printf("%c",arraypointer[i-1]);
+        printf("%c",entrada[i-1]);
     }
 }
 
-char* cria_arrays(char*saida)
+//função para cria arrays
+void fillaray(char *aray)
 {
-    char *aray = (char*) malloc(sizeof(char));
+    //Recebe imput do usuário para preencher array
     scanf("%s", aray);
-    int contador = 0;
-
-    while ( aray[contador] != '\0')
-    {
-        printf("%c", aray[contador]);
-        contador++;
-    }
-    saida = aray;
-
 }
 
 
@@ -161,72 +164,77 @@ int rootCheck(void)
 void criar_usuario(void)
 {
     //ponteiros para retornar senha e usuário.
-    char *senhaR;
-    char *userR;
+    char *userR = (char*) malloc(sizeof(char));
+    char *senhaR = (char*) malloc(sizeof(char));
 
-    //chama as respectivas funções para a criação de usuáro e senha root.
+    //chama as respectivas funções para a criação de usuáro e senha.
     criarUserName(userR);
     criarSenha(senhaR);
-    printarray(userR);
-    printarray(senhaR);
+
+    //comandos para mostrar na tela e testar opração
+    print_array(userR);
+    print_array(senhaR);
     
 }
     
     
 
 
-char* criarSenha(char *retorno)
+void criarSenha(char *retorno)
 {
     //endereço para senha ser retornada da função de criararrays
-    char *entrada1;
-    char *entrada2;
+    char *teste = (char*) malloc(sizeof(char));
+    
 
     //mensagem para usuário inserir a senha
     printf("Digite a senha\n");
 
     //chama a função criar arays para fazer a senha
-    cria_arrays(entrada1);
+    fillaray(teste);
     
     //mensagem para o usuário digitar a senha novamente
     printf("Digite a senha novamente\n");
 
     // chama a função de criar arays novamente 
-    cria_arrays(entrada2);
+    fillaray(retorno);
 
     // Loop que compara as senhas, caso elas sejam diferentes pede ao usuário para reescreve-las
-    while(check_arrays(entrada1,entrada2) == 0)
+    while(check_arrays(teste,retorno) == 0)
     {
         printf("A senha precisa ser igual a digitada anterioremente\n");
         printf("Digite a senha\n");
-        cria_arrays(entrada1);
+        fillaray(teste);
         printf("Digite a senha novamente\n");
-        cria_arrays(entrada2);
+        fillaray(retorno);
     }
-    retorno = entrada1 ;
+    
    
 }
 
-void criarUserName(char *Entry)
+void criarUserName(char *aray)
 {
-    //declara variáveis
-    char *entrada1;
-
-    //mensagem para usuário inserir o nome de usuário
-    printf("Digite o nome de usuário desejado\n");
-
-    //chama a função criar arays para fazer o nome de usuário
-    cria_arrays(entrada1);
-    
-    //mensagem para o usuário confirmar o nome de usuário
-    printf("O nome de usuário que você digitou é: \n");
-    printarray(entrada1);
-    printf("\n");
-    printf("Você deseja reescreve-lo?");
-    while (input() == 0)
+    //declara variável que a escolha do usuário ficara guardada
+    int choice = 1;
+  
+  //loop para o usuário preencher o nome de usuário
+    while (choice == 1)
     {
-        criarUserName(entrada1);
+        //mensagem para usuário inserir o nome de usuário
+        printf("Digite o nome de usuario desejado\n");
+
+        //chama a função criar arays para fazer o nome de usuário
+        fillaray(aray);
+
+        //mensagem para o usuário confirmar o nome de usuário
+        printf("O nome de usuario que voce digitou e: \n");
+
+        //mostra o nome digitado
+        print_array(aray);
+
+        //Caso o usuário deseje ele pode reescrever o nome
+        printf("\nVoce deseja reescreve-lo?\nDgite (1) para sim e (0) para nao\n ");
+        choice = input();
     }
-    Entry = entrada1;
 }
 /*void MenuInicial(void)
 
