@@ -21,7 +21,7 @@ int rootCheck(void);
 //função para criar senha
 void criarSenha(char *retorno);
 
-//função para nome de usuário
+//função para criar nome de usuário
 void criarUserName(char *entry);
 
 //função para mosrar arrays na tela
@@ -31,7 +31,7 @@ void print_array(char *entrada);
 int check_arrays(char *array1, char *array2);
 
 //função para criar usuário
-void criar_usuario(void);
+void criar_usuario(FILE *rootfile); 
 
 //fução para criar arrays
 void fillaray(char *saida);
@@ -74,7 +74,7 @@ int main(void)
             else
             {
                 //chama a função "criar usuário para criar o usuário root"
-                criar_usuario();
+                criar_usuario(rootFile);
             }
         }
         
@@ -87,7 +87,7 @@ int main(void)
     
     return 0; 
 }
-//função para escolha do usuário
+//função para receber input da escolha do usuário
 int input(void)
 {
     //cria variável inteira
@@ -114,7 +114,7 @@ int check_arrays(char *array1, char *array2)
         
     }
     return 1;
-    
+   
         
 }
 
@@ -161,8 +161,9 @@ int rootCheck(void)
     }
 }
 
-void criar_usuario(void)
+void criar_usuario(FILE *rootfile)
 {
+    int last_T_user = 0;
     //ponteiros para retornar senha e usuário.
     char *userR = (char*) malloc(sizeof(char));
     char *senhaR = (char*) malloc(sizeof(char));
@@ -171,9 +172,40 @@ void criar_usuario(void)
     criarUserName(userR);
     criarSenha(senhaR);
 
-    //comandos para mostrar na tela e testar opração
-    print_array(userR);
-    print_array(senhaR);
+    struct user
+    {
+        int token;
+        char *user_name;
+        char *senha;
+        
+    };
+    
+    typedef struct user usuario;
+
+    
+    if(last_T_user = 0)
+    {
+        usuario root;
+        root.token = 999;
+        root.user_name = userR;
+        root.senha = senhaR;
+        fwrite(&root,sizeof(struct user),1,rootfile);
+        root.token = 1;
+        root.user_name = "teste1";
+        root.senha = "teste2";
+        fread( &root, sizeof( usuario ), 1, rootfile );
+       printf(" %d %s %s", root.token,root.senha,root.user_name);
+        
+        
+        
+
+    }
+    usuario comum;
+    comum.token = (last_T_user + 1);
+    comum.user_name = userR;
+    comum.senha = senhaR;
+    fwrite(&comum,sizeof(struct user),1,rootfile);
+    
     
 }
     
