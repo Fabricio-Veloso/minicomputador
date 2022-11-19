@@ -2,57 +2,107 @@
 #include <string.h>
 #include <stdlib.h>
 
-void print_array(char *aray);
-
-void cria_arrays(char *aray)
+int main(void)
 {
-    //cria  um ponteiro que aponta para endereço com tamanho de char
-    ;
-
-    //Recebe imput do usuário para preencher array
-    scanf("%s", aray);
-    int i = 0;
-    while( aray[i] != '\0')
+    //ponteiro para arquivo
+    FILE *arquivo_root;
+    FILE *arquivo_index;
+    printf("1");
+    struct archive_index
     {
-        i++;
-        printf("%c",aray[i-1]);
-    }
-   printf(" fim da funcao print arays\n");
+        long int adress;
+        char *file_name;
+    };
+    //troca nome de estrutura por arquivo
+    typedef struct archive_index arquivo;
 
-    //endereço de retorno recebe array criado
+    //estrutura de usuário
+    struct user
+    {
+        int token;
+        char *user_name;
+        char *senha;
+    };
+    //troca nome da estrutura por txt
+    typedef struct user usuario;
+
+    struct txt
+    {
+        char *txt;
+        char *name; 
+    };
+    //trocar nome da estrutura para usuário
+    typedef struct txt txt;
+
+    txt papel;
+    papel.name = "primeiro arquivo de texto";
+    papel.txt = "produção textual de teste";
     
-    i = 0;
-    while( aray[i] != '\0')
-    {
-        i++;
-        printf("%c",aray[i-1]);
-    }
-    printf("segundo fim da funcao print arays\n");
-}
+    usuario teste;
+    teste.senha = "senha teste";
+    teste.token = 1;
+    teste.user_name = "Fabricio";
 
-int main (void)
-{
-    char *aray = (char*) malloc(sizeof(char));
-    cria_arrays(aray);
-    int i = 0;
-    while( aray[i] != '\0')
-    {
-        i++;
-        printf("%c",aray[i-1]);
-    }
-    printf(" fim da funcao print arays em main\n");
-    print_array(aray);
-    return 0;
-}
+    long int adress_a;
+    long int adress_b;
 
-void print_array(char *entrada)
-{
+    arquivo primeiro_arquivo;
+    arquivo segundo_arquivo;
+   printf("2");
     
-    int i = 0;
-    while( entrada[i] != '\0')
+    
+    if((arquivo_root = fopen("teste.txt","wb")) == NULL )
     {
-        i++;
-        printf("%c",entrada[i-1]);
+        printf("O arquivo não pode ser aberto");
+    }
+    else
+    {
+        adress_a = ftell(arquivo_root);
+        fwrite(&teste,sizeof(usuario),1,arquivo_root);
+
+        adress_b = ftell(arquivo_root);
+        fwrite(&papel,sizeof(txt),1,arquivo_root);
+        fclose(arquivo_root);
+    }
+    printf("3");
+    if((arquivo_index = fopen("teste.txt","wb")) == NULL )
+    {
+        printf("O arquivo não pode ser aberto");
+    }
+    else
+    {
+        primeiro_arquivo.adress = adress_a;
+        primeiro_arquivo.file_name = "Fabrício";
+        segundo_arquivo.adress = adress_b;
+        segundo_arquivo.file_name = "primeiro texto de fabricio";
+        fwrite(&primeiro_arquivo,sizeof(arquivo),1,arquivo_index);
+        fwrite(&segundo_arquivo,sizeof(arquivo),1,arquivo_index);
+        fclose(arquivo_index);
+
+    }
+    printf("4");
+    if((arquivo_index = fopen("teste.txt","wb")) == NULL )
+    {
+        printf("O arquivo não pode ser aberto");
+    }
+    
+    else
+    {
+        while (fread())
+        {
+        fseek(arquivo_index,sizeof(arquivo),SEEK_SET);
+        } 
+
+        fread(&primeiro_arquivo,sizeof(arquivo),1,arquivo_index);
+        printf("%ld",primeiro_arquivo.adress);
+        fclose(arquivo_index);
+    }   
+    printf("5");
+
+
+
     }
 
-}
+    
+
+

@@ -177,7 +177,6 @@ void criar_usuario(FILE *rootfile)
         int token;
         char *user_name;
         char *senha;
-        
     };
     
     typedef struct user usuario;
@@ -190,15 +189,6 @@ void criar_usuario(FILE *rootfile)
         root.user_name = userR;
         root.senha = senhaR;
         fwrite(&root,sizeof(struct user),1,rootfile);
-        root.token = 1;
-        root.user_name = "teste1";
-        root.senha = "teste2";
-        fread( &root, sizeof( usuario ), 1, rootfile );
-       printf(" %d %s %s", root.token,root.senha,root.user_name);
-        
-        
-        
-
     }
     usuario comum;
     comum.token = (last_T_user + 1);
