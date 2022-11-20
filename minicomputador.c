@@ -67,7 +67,7 @@ int main(void)
         {
             //cria arquivo root
             //testa se aquivo root pode ser criado
-            if ((rootFile = fopen("root.txt", "wb")) == NULL)
+            if ((rootFile = fopen("root.txt", "wb+")) == NULL)
             {
                 printf("houve algum erro ao criar o arquivo de usuário root.\n");
             }
@@ -158,6 +158,7 @@ int rootCheck(void)
     {
         printf("Aquivo Root encontrado");
         return 1;
+        fclose(rootFile);
     }
 }
 
@@ -190,12 +191,18 @@ void criar_usuario(FILE *rootfile)
         root.senha = senhaR;
         fwrite(&root,sizeof(struct user),1,rootfile);
     }
-    usuario comum;
-    comum.token = (last_T_user + 1);
-    comum.user_name = userR;
-    comum.senha = senhaR;
-    fwrite(&comum,sizeof(struct user),1,rootfile);
-    
+    else
+    {
+        usuario comum;
+        comum.token = (last_T_user + 1);
+        comum.user_name = userR;
+        comum.senha = senhaR;
+        fwrite(&comum,sizeof(struct user),1,rootfile);
+        usuario *pcomum = comum.senha;
+        pcomum = comum.token;
+        pcomum = comum.user_name;
+        fwrite(pcomum,sizeof(usuario),1,rootfile);
+    }
     
 }
     
