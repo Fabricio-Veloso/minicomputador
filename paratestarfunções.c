@@ -46,7 +46,7 @@ int adaptative_fwrite_user(usuario variavel, FILE *file_arquivo);
 int adaptative_fwrite_txt(txt variavel, FILE *file_arquivo);
 
 // função para encontrar arquivos indexadores por nome
-long int Acha_index(char *nomearquivo, a_index arquivo, FILE *pfile);
+long int Acha_index(char *nomearquivo, FILE *pfile);
 
 // função para checar arrays.
 int check_arrays(char *array1, char *array2);
@@ -79,7 +79,7 @@ int main(void)
 //cri adois arquivos do tipo indexador
     a_index primeiro_arquivo;
     a_index segundo_arquivo;
-   printf("\np2\n");
+    printf("\np2\n");
     
     // caso não consiga abrir o arquivo de teste retona mensagem, abre aquivo de teste
     if((arquivo_root = fopen("teste_index.txt","wb")) == NULL )
@@ -112,8 +112,10 @@ int main(void)
     {
         //preenche os arquivos com nome e endereço coletados
         primeiro_arquivo.adress = adress_a;
+        printf(" endereco salvo do primeiro arquivo e :%ld\n",primeiro_arquivo.adress);
         primeiro_arquivo.file_name = "Fabricio";
         segundo_arquivo.adress = adress_b;
+        printf(" endereco salvo do segundo arquivo e :%ld\n",segundo_arquivo.adress);
         segundo_arquivo.file_name = "primeiro texto de fabricio";
         primeiro_arquivo.next = &segundo_arquivo;
         segundo_arquivo.next = NULL;
@@ -130,7 +132,8 @@ int main(void)
         //fechar arquivo indexador
         fclose(arquivo_index);
         printf("\np300\n");
-        printf("%ld"),(Acha_index(nome_teste,primeiro_arquivo,arquivo_index));  
+        
+        printf(" o endereco achado pela funcao  de procurar por nome index e :%ld",Acha_index(nome_teste,arquivo_index));  
         
         
     }
@@ -166,10 +169,10 @@ void print_array(char *entrada)
     }
 }
 
-long int Acha_index(char *nomearquivo, a_index arquivo, FILE *pfile)
+long int Acha_index(char *nomearquivo, FILE *pfile)
 {
    
-
+    a_index exemple;
     //criando função para abrir arquivo indexador, buscar o desejado pelo nome e retornar endereço 
     if((pfile = fopen("teste_index.txt","rb")) == NULL )
     {
@@ -181,16 +184,24 @@ long int Acha_index(char *nomearquivo, a_index arquivo, FILE *pfile)
         printf("\np3,8\n");
         while (!feof(pfile))
         {
+            long int retorno;
             int cont = 0;
             printf("\np20\n");
-            (fread(&arquivo,sizeof(a_index),1,pfile));
-            print_array(arquivo.file_name);
+            (fread(&exemple.file_name,sizeof(a_index),1,pfile));
+            retorno = exemple.adress;
+            print_array(exemple.file_name);
+
+            printf("\n");
+
+            
+            printf(" a variavel retorno de o valor %ld",retorno);
             
             printf("\np3,9\n");
-            if(check_arrays(arquivo.file_name,nomearquivo) == 1)
+            if(check_arrays(exemple.file_name,nomearquivo) == 1)
             {
                 printf("\np4\n");
-                return arquivo.adress;
+                printf(" o endereco do arquivo depois da funcao check rrays foi : %ld",exemple.adress);
+                return retorno;
             }
            else
            {
