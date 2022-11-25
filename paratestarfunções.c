@@ -4,55 +4,11 @@
 #include <stdarg.h>
 
 
-//estrutura de arquivo indexador
-struct archive_index
-{
-    char *file_name;
-    long int adress;
-   struct archive_index *next;
-};
 
-//estrutura de usuário
-struct user
-{
-    int token;
-    char *user_name;
-    char *senha;
-};
 
-//estrutura de texto
-struct txt
-{
-    char *txt;
-    char *name; 
-};
 
-// troca nome de estrutura por arquivo
-typedef struct archive_index a_index;
 
-// trocar nome da estrutura para usuário
-typedef struct user usuario;
 
-// troca nome da estrutura por txt.
-typedef struct txt txt;
-
-// Função fwrite adaptada para arquivos idexadores.
-int adaptative_fwrite_index(a_index variavel, FILE *file);
-
-// função fwrite para arquivos de usuário.
-int adaptative_fwrite_user(usuario variavel, FILE *file_arquivo);
-
-// Função fwrite adaptada para textos.
-int adaptative_fwrite_txt(txt variavel, FILE *file_arquivo);
-
-// função para encontrar arquivos indexadores por nome
-long int Acha_index(char *nomearquivo, FILE *pfile);
-
-// função para checar arrays.
-int check_arrays(char *array1, char *array2);
-
-//printa arrays
-void print_array(char *entrada);
 
 int main(void)
 {
@@ -141,85 +97,9 @@ int main(void)
 }
 
 
-//função para checar arrays
-int check_arrays(char *array1, char *array2)
-{
-    //variável contator para loop
-    int i = 0;
-    int cont2 = 0;
-    while( array1[i] != '\0' || array2[i] != '\0')
-    {
-        if (array1[i] != array2[i]) 
-        {
-            return 0;
-        }
-        i++;
-        
-    }
-    return 1;
-}
 
-void print_array(char *entrada)
-{
-    int i = 0;
-    while( entrada[i] != '\0')
-    {
-        i++;
-        printf("%c",entrada[i-1]);
-    }
-}
 
-long int Acha_index(char *nomearquivo, FILE *pfile)
-{
-   
-    a_index exemple;
-    //criando função para abrir arquivo indexador, buscar o desejado pelo nome e retornar endereço 
-    if((pfile = fopen("teste_index.txt","rb")) == NULL )
-    {
-        printf("O arquivo não pode ser aberto");
-    }
 
-    else
-    {
-        printf("\np3,8\n");
-        while (!feof(pfile))
-        {
-            long int retorno;
-            int cont = 0;
-            printf("\np20\n");
-            (fread(&exemple.file_name,sizeof(a_index),1,pfile));
-            retorno = exemple.adress;
-            print_array(exemple.file_name);
-
-            printf("\n");
-
-            
-            printf(" a variavel retorno de o valor %ld",retorno);
-            
-            printf("\np3,9\n");
-            if(check_arrays(exemple.file_name,nomearquivo) == 1)
-            {
-                printf("\np4\n");
-                printf(" o endereco do arquivo depois da funcao check rrays foi : %ld",exemple.adress);
-                return retorno;
-            }
-           else
-           {
-            cont++;
-            printf("\np5,1\n");
-            fseek(pfile,cont*sizeof(a_index),SEEK_SET);
-           }
-        }
-        fclose(pfile);
-    }   
-    printf("\np6\n");
-}
-
-int adaptative_fwrite_index( a_index variavel,FILE *file_arquivo)
-{
-
-   fwrite(&variavel,sizeof(a_index),1,file_arquivo);
-}
 
 int adaptative_fwrite_txt( txt variavel,FILE *file_arquivo)
 {
@@ -227,11 +107,7 @@ int adaptative_fwrite_txt( txt variavel,FILE *file_arquivo)
    fwrite(&variavel,sizeof(txt),1,file_arquivo);
 }
 
-int adaptative_fwrite_user( usuario variavel,FILE *file_arquivo)
-{
 
-   fwrite(&variavel,sizeof(usuario),1,file_arquivo);
-}
 
         
 
