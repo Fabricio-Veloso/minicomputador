@@ -11,9 +11,86 @@ uma interface para selecionar entre as funções
  lista de contatos 
 jogo de campo minado
 
-Primeiro vamos fazer o menu/interface do usuário para selecionar entre as funcções:
- */
-/*void MenuInicial(void);*/
+
+void MenuInicial(void);*/
+
+
+
+            //Estruturas
+
+//estrutura para quantidade de usuários
+struct inf_q_user
+{
+    int user_quantity;
+};
+
+//estrutura de arquivo indexador
+struct archive_index
+{
+    char *file_name;
+    long int adress;
+   
+};
+
+//estrutura de usuário
+struct user
+{
+    int token;
+    char *user_name;
+    char *senha;
+};
+
+//estrutura de texto
+struct txt
+{
+    char *txt;
+    char *name; 
+};
+
+    //Typedef's para as estruturas
+
+//troca nome de estrutura por quantidade de usuários
+typedef struct inf_q_user user_quantity;
+
+// troca nome de estrutura por arquivo
+typedef struct archive_index a_index;
+
+// trocar nome da estrutura para usuário
+typedef struct user usuario;
+
+// troca nome da estrutura por txt.
+typedef struct txt txt;
+
+    //funções de indexação leitura, abertua e escrita de arquivos
+
+//função para abrir o arquivo root   
+int open_file_root(FILE *pfile,char *nome_file, char *modo);
+
+//função para bucar estruturas index no registro de arquivos indexadores por nome
+long int Acha_index(char *nomearquivo, FILE *pfile);
+
+//função para abrir o arquivo indexador
+int open_file_index(FILE *, char *, char *);
+
+//função adaptada para escrita de arquivos do tipo txt
+int adaptative_fwrite_txt( txt variavel,FILE *file_arquivo);
+
+// Função fwrite adaptada para arquivos idexadores.
+int adapted_fwrite_index(a_index variavel, FILE *pfile);
+
+// função fwrite para arquivos de usuário.
+long int adapted_fwrite_user(usuario variavel, FILE *pfile);
+
+// Função fwrite adaptada para textos.
+long int adapted_fwrite_txt(txt variavel, FILE *pfile);
+
+// função para encontrar arquivos indexadores por nome
+long int Acha_index(char *nomearquivo, FILE *pfile);
+
+        //Funções de login
+
+//função para criar usuário
+void criar_usuario(FILE *rootfile, FILE *index);  
 
 //função para checar se o arquivo root já existe
 int rootCheck(void);
@@ -24,14 +101,14 @@ void criarSenha(char *retorno);
 //função para criar nome de usuário
 void criarUserName(char *entry);
 
+
+        //Funções para arrays
+
 //função para mosrar arrays na tela
 void print_array(char *entrada);
 
 //função para comprar arrays
 int check_arrays(char *array1, char *array2);
-
-//função para criar usuário
-void criar_usuario(FILE *rootfile); 
 
 //fução para criar arrays
 void fillaray(char *saida);
@@ -45,8 +122,9 @@ int main(void)
 {
     //variável para token do usuário atual.
     int usuarioToken;
-    //ponteiro para estrutura FILE
+    //ponteiros para estrutura FILE
     FILE *rootFile;
+    FILE *f_index;
 
     //variável para escolha do usuário
     int choice;
@@ -74,7 +152,7 @@ int main(void)
             else
             {
                 //chama a função "criar usuário para criar o usuário root"
-                criar_usuario(rootFile);
+                criar_usuario(rootFile,f_index);
             }
         }
         
@@ -87,6 +165,7 @@ int main(void)
     
     return 0; 
 }
+
 //função para receber input da escolha do usuário
 int input(void)
 {
@@ -136,7 +215,7 @@ void fillaray(char *aray)
     scanf("%s", aray);
 }
 
-
+//função para checar se o arquivo root foi criado
 int rootCheck(void)
 {
     //função para checar se já existe um usuário administradorou root, caso ele ainda não exista, será criado.
@@ -162,9 +241,57 @@ int rootCheck(void)
     }
 }
 
-void criar_usuario(FILE *rootfile)
+//função para criar nome e senha e registralos nos arquivos de registro e indexador
+void criar_usuario(FILE *rootfile, FILE *f_index)
 {
-    int last_T_user = 0;
+    //cria variáveis para alocar quantidade de usuários criados
+    user_quantity quantidade_usuarios;
+    int last_T_user;
+   
+   //se a abertura do rquivo indexador no modo de leitura não poder ser realizada
+    if(open_file_index(f_index,"index.txt","rb") == 0)
+     {
+        //preenche a variável que guarada aquantidade de usuário com 0
+        quantidade_usuarios.user_quantity = 0;
+
+        //escreve a váriavel no arquivo root e guarda o endereço dela em uma variável temporária
+        long int temp_addres = adapted_fwrite_quantity(quantidade_usuarios,rootfile);
+
+        //fecha arquivo root
+        fclose(rootfile);
+
+        //abre o arquivo indexador no modo de escrita binária pela primeira vez
+        if(open_file_index(f_index,"index.txt","wb") == 1)
+        {
+            //cria e preenche um arquivo tipo indexador com o endereço do registro da quantidade  de usuários criados
+           a_index index;
+           index.file_name = "quantidade_de_usuarios_registrados";
+           index.adress = temp_addres;
+           
+           // escreve a estrutura indexadora no arquivo indexador com os dados
+           adapted_fwrite_index(index,f_index);
+        }
+     }
+
+    //se a abertura do arquivo indexador puder ser realizada
+    else if (open_file_index(f_index,"index.txt","rb") == 1)
+    {
+        //busca a estrutura que contem a quantidade de usuários criada e guarda endereço dela no arquivo root em variável temporária
+        long int temp_addres = Acha_index("quantidade_de_usuarios_registrados",f_index);
+
+        //fecha arquivo indexador
+        fclose(f_index);
+
+        //se o arquivo root puder ser aberto
+        if(open_file_root(rootfile,"root.txt", "rb+") == 1)
+        {
+            // lê a variável que contem a quatidade de usuários já criada com o endereço retornado pela função acha_index
+            fread(temp_addres,sizeof(user_quantity),1,rootfile);
+            last_T_user = quantidade_usuarios.user_quantity;
+        }
+    }
+    
+    
     //ponteiros para retornar senha e usuário.
     char *userR = (char*) malloc(sizeof(char));
     char *senhaR = (char*) malloc(sizeof(char));
@@ -173,42 +300,85 @@ void criar_usuario(FILE *rootfile)
     criarUserName(userR);
     criarSenha(senhaR);
 
-    struct user
+    //se a quantidade de usuários criada for 0
+    if(last_T_user == 0)
     {
-        int token;
-        char *user_name;
-        char *senha;
-    };
-    
-    typedef struct user usuario;
-
-    
-    if(last_T_user = 0)
-    {
+        //cria uma estrutura de usuário para o primeiro usuário (root)
         usuario root;
         root.token = 999;
         root.user_name = userR;
         root.senha = senhaR;
-        fwrite(&root,sizeof(struct user),1,rootfile);
+
+        //escreve o registro de usuário root em root_file
+        long int temp_addres = adapted_fwrite_user(root,rootfile);
+
+        //fecha root_file
+        fclose(rootfile);
+
+        //se o arquivo indexador puder ser aberto
+        if(open_file_index(f_index,"index.txt","wb"))
+        {
+            //cria variável do tipo indexador e a preenche com nome e o endereço do registro de usuário root no arquivo root
+            a_index index;
+            index.file_name = "usuario";
+            index.adress = temp_addres;
+
+            //escreve  a variável no arquivo indexador
+            adapted_fwrite_index(index,f_index);
+        }
+        
     }
+
+    //se algum usuário ja tenha sido criado cria um usuário comum
     else
     {
         usuario comum;
         comum.token = (last_T_user + 1);
         comum.user_name = userR;
         comum.senha = senhaR;
-        fwrite(&comum,sizeof(struct user),1,rootfile);
-        usuario *pcomum = comum.senha;
-        pcomum = comum.token;
-        pcomum = comum.user_name;
-        fwrite(pcomum,sizeof(usuario),1,rootfile);
+        long int temp_addres = adapted_fwrite_user(comum,rootfile);
+        fclose(rootfile);
+        if (open_file_index(f_index,"index.txt", "rb+") == 1)
+        {   
+            a_index index;
+            index.adress = temp_addres;
+            index.file_name = userR;
+            adapted_fwrite_index(index,f_index);
+        }
+
     }
     
 }
-    
-    
 
+//função para abrir o arquivo indexador    
+int open_file_index(FILE *pfile,char *nome_file, char *modo)
+{
+    if ((pfile = fopen(nome_file, modo)) == NULL)
+        {
+            printf("Não foi possível abrir o arquivo indexador pela função adaptada");
+            return 0;
+        }
+    else
+    {
+        return 1;
+    }
+}   
 
+//função para abrir o arquivo root  
+int open_file_root(FILE *pfile,char *nome_file, char *modo)
+{
+    if ((pfile = fopen(nome_file, modo)) == NULL)
+        {
+            printf("Não foi possível abrir o arquivo root pela função adaptada");
+            return 0;
+        }
+    else
+    {
+        return 1;
+    }
+}   
+
+//função para criar senha
 void criarSenha(char *retorno)
 {
     //endereço para senha ser retornada da função de criararrays
@@ -240,6 +410,7 @@ void criarSenha(char *retorno)
    
 }
 
+//função para criar nome de usuário
 void criarUserName(char *aray)
 {
     //declara variável que a escolha do usuário ficara guardada
@@ -265,6 +436,66 @@ void criarUserName(char *aray)
         choice = input();
     }
 }
+
+//função de fwrite adaptada para o tipo de estrutura usuário
+long int adapted_fwrite_user( usuario variavel,FILE *file_arquivo)
+{
+    long int return_addres = ftell(file_arquivo);
+    fwrite(&variavel,sizeof(usuario),1,file_arquivo);
+    return return_addres;
+}
+
+//função de fwrite adaptada para o tipo de estrutura de registro indexador
+int adapted_fwrite_index( a_index variavel,FILE *file_arquivo)
+{
+
+   fwrite(&variavel,sizeof(a_index),1,file_arquivo);
+}
+
+//função de fwrite adaptada para o tipo de estrutura quantidade de usuário
+long int adapted_fwrite_quantity( user_quantity variavel,FILE *file_arquivo)
+{
+    long int return_addres = ftell(file_arquivo);
+    fwrite(&variavel,sizeof(user_quantity),1,file_arquivo);
+    return return_addres;
+}
+
+//função que busca registros de arquivos indexadore por nome e retorna endereço no arquivo root
+long int Acha_index(char *nomearquivo, FILE *pfile)
+{
+   
+    a_index exemple;
+    if(open_file_index(pfile,"index.txt","rb") == 1)
+    {
+        while (!feof(pfile))
+        {
+            long int retorno;
+            int cont = 0;
+           
+            (fread(&exemple.file_name,sizeof(a_index),1,pfile));
+            retorno = exemple.adress;
+            
+            if(check_arrays(exemple.file_name,nomearquivo) == 1)
+            {
+                fclose(pfile);
+                return retorno;
+            }
+
+           else
+           {
+            cont++;
+            fseek(pfile,cont*sizeof(a_index),SEEK_SET);
+           }
+        }
+    }   
+}
+
+int adaptative_fwrite_txt( txt variavel,FILE *file_arquivo)
+{
+
+   fwrite(&variavel,sizeof(txt),1,file_arquivo);
+}
+
 /*void MenuInicial(void)
 
 {
