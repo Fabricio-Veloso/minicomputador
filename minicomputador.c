@@ -107,6 +107,9 @@ void criarUserName(char *entry);
 
         //Funções para arrays
 
+//função para converter string em aray de char
+char*  conv_str_aray(char *string);
+
 //função para mosrar arrays na tela
 void print_array(char *entrada);
 
@@ -216,6 +219,22 @@ void fillaray(char *aray)
 {
     //Recebe imput do usuário para preencher array
     scanf("%s", aray);
+}
+
+char*  conv_str_aray(char *string)
+{
+    //Cria o array com tanho iguál ao da string.
+    char convertaray[strlen(string)];
+
+    //cria um contador que será usado no laço.
+    int i = 0;
+
+    //cria laço for para preencher o array criado com os caracteres da string.
+    for(i = 0; i <= strlen(string); i++)
+    {
+        convertaray[i] = string[1];
+    }
+    print_array(convertaray);
 }
 
 //função para checar se o arquivo root foi criado
