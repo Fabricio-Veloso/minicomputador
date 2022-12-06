@@ -21,6 +21,7 @@ void MenuInicial(void);*/
 //estrutura para quantidade de usuários
 struct qUser
 {
+    char *name;
     int quantity;
 };
 
@@ -35,8 +36,8 @@ struct aindex
 struct user
 {
     int token;
-    char user_name[25];
-    char senha[16];
+    char *username;
+    char *senha;
 };
 
 //estrutura de texto
@@ -66,7 +67,7 @@ typedef struct txt txt;
 long int adapted_fwrite_quantity( quantity variavel,FILE *file_arquivo);
 
 //função para chegar a exeistência dos arquivos rot e index e relizar suas aberturas realizr um teste de escrita e leitura
- int archivecheck(FILE *root, FILE *index);
+int archivecheck(FILE *root, FILE *index);
 
 //função para bucar estruturas index no registro de arquivos indexadores por nome
 long int Achrindex(char *nomearquivo, FILE *pfile);
@@ -112,7 +113,7 @@ void criate_modular_array(char*string, char *array_saida);
 void print_array(char *entrada);
 
 //função para comprar arrays
-int check_arrays(char *array1, char *array2);
+int checkArrays(char *array1, char *array2);
 
 //fução para criar arrays
 void fillstring(char *saida);
@@ -166,29 +167,33 @@ int input(void)
 }
 
 //função para comparar arrays.
-int check_arrays(char *array1, char *array2)
+int checkArrays(char *array1, char *array2)
 {
-    //variável contator para loop
-    int i = 0;
-    int cont2 = 0;
-    while( array1[i] != '\0' || array2[i] != '\0')
+    printf("\nEntrou na funcao de checar arrays");
+    if (strcmp(array1,array2) == 0)
     {
-        printf("\n%c",array1[i]);
-        if (array1[i] != array2[i]) 
-        {
-            return 0;
-        }
-        i++;
-        
+        printf("A comparacao de strings mostra que ambas sao iguais com retorno (1)");
+        return 1;
     }
-    return 1;
-   
+    else
+    {
+        printf("\nFuncao check arrays retornou diferença ou  (0) com sucesso");
+        return 0;
+    }
+
+        
+       
+        
+    
+        
         
 }
 
 //função para printar arrays
 void print_array(char *entrada)
 {
+    printf("\nEntrou na funcao print arrays");
+    
     int i = 0;
     while( entrada[i] != '\0')
     {
@@ -208,6 +213,7 @@ void fillstring(char *aray)
 void criate_modular_array(char*string, char *array_saida)
 {
     char array[strlen(string)];
+    conv_str_aray(string,array);
     array_saida = array;
 }
 
@@ -239,7 +245,7 @@ int archivecheck(FILE *fRoot, FILE *findex)
         printf("\nArquivo root nao foi encontrado");
 
         //cria e abre o arquivo root em modo de escrita
-        if ((fRoot = fopen("root.txt","wb")) == NULL)
+        if ((fRoot = fopen("root.txt","wb+")) == NULL)
         {
             printf("\nArquivo root nao pode aberto no modo escrita ");
         }
@@ -257,10 +263,7 @@ int archivecheck(FILE *fRoot, FILE *findex)
             long int iftempAddres;
 
             //variável temporária recebe endereço atual de root
-            iftempAddres = ftell(fRoot);
-
-            //retorna variável temporária de dentro do if para fora do if, aonde opderá ser usada por outras partes da função
-            tempadress = iftempAddres;
+            tempadress = ftell(fRoot);
 
             //fwrite escreve a variável de quantidade de usuários em root
             fwrite(&quantUsuarios,sizeof(quantity),1,fRoot);
@@ -280,14 +283,14 @@ int archivecheck(FILE *fRoot, FILE *findex)
     {
         printf("\nArquivo index nao foi encontrado");
         
-        if ((findex = fopen("index.txt","wb")) == NULL)
+        if ((findex = fopen("index.txt","wb+")) == NULL)
         {
-            printf("\nArquivo indexador não pode ser aberto no modo de escrita binária");
+            printf("\nArquivo indexador não pode ser aberto no modo de escrita binária +");
         }
 
         else
         {
-             printf("\nArquivo index foi criado e aberto no modo escrita ");
+             printf("\nArquivo index foi criado e aberto no modo escrita binaria + ");
 
             //declara variável do tipo index
             rindex index;
@@ -296,14 +299,17 @@ int archivecheck(FILE *fRoot, FILE *findex)
             index.adress = tempadress;
 
             //preenche o campo namefile da vaiável index com nome
-            index.filename = "quantUsuarios";
+            char *nome = (char*) malloc(sizeof(char));
+            printf("\nDigite o nome para ser colocado no arquivo que contem a quantidade de usuarios registrados no sistema\n");
+            fillstring(nome);
+            index.filename = nome;
             
             //escreve a variável index no arquivo indexador
             fwrite(&index,sizeof(rindex),1,findex);
 
             //chama função de buscar arquivos indexadores pelo nome
             //variável de dendereço temporário recebe endereço retornado pela função 
-            tempadress = Achrindex("quantUsuarios",findex);
+            tempadress = Achrindex(nome,findex);
 
             //variável de exemplo para ser lido pela função fread
             quantity exemple;
@@ -314,7 +320,7 @@ int archivecheck(FILE *fRoot, FILE *findex)
             //tenta ler a variável que contém aquntidade de usuários
             fread(&exemple,sizeof(quantity),1,fRoot);
 
-            printf("A quantidade de usuarios registrada é %d",exemple.quantity);
+            printf("A quantidade de usuarios registrada e %d",exemple.quantity);
 
             //fecha os arquivo root e index
             fclose(fRoot);
@@ -329,8 +335,8 @@ int archivecheck(FILE *fRoot, FILE *findex)
         printf("\nArquivo index encontrado");
 
         //fecha os arquivo root e index
-            fclose(fRoot);
-            fclose(findex);
+        fclose(fRoot);
+        fclose(findex);
 
         return 1;
     }
@@ -339,20 +345,36 @@ int archivecheck(FILE *fRoot, FILE *findex)
 
 void login (FILE *pindex, FILE *prootfile,int user_token)
 {
+    //prompt
     printf("\n\nPara realizar o login Digite o nome de usuario\n");
+
+    //alocação de memória para string
     char *name = (char*) malloc(sizeof(char));
+
+    //chamada de função para usuário preencher a string
     fillstring(name);
+    print_array(name);
+
+    //prompt
     printf("\n\nNome recebido com sucesso");
-    long int temp_addres = 0;
+
+    //Criação de variável temporária para receber endereço de memória
+    long int temp_addres;
+
+    //criação de variável para ser usada com sentinela em loop
     int status = 0;
+
+    //enquanto o valor sentinela não for modificado
     while (status == 0)
     {
-        printf("\n\nentrou no loop");
+        printf("\n\nentrou no loop com sentinela status");
+
+        //endereço temporário deve receber o endereço retornado pela função achar-index
         temp_addres = Achrindex(name,pindex); 
-        if (temp_addres  == 5)
+        if (temp_addres  == -1 )
         {
-            printf("\n\nNão foi encontrado um login com este nome de usuario");
-            printf("\n\nDigite um nome de usuario valido");
+            printf("\n\nNao foi encontrado um login com este nome de usuario");
+            printf("\n\nDigite um nome de usuario valido\n");
             fillstring(name);
         }
         else
@@ -363,50 +385,84 @@ void login (FILE *pindex, FILE *prootfile,int user_token)
         }
     }
     
+    //modulação de status para servir como contador
     status = 3;
    
+   //estrutura de exemplo criada para ser usada na função fread
     usuario exemple;
-    fseek(prootfile,temp_addres,SEEK_SET);
-    printf("\n\ntranslacao para o endereco temporario realizada com sucesso");
-    fread(&exemple,sizeof(rindex),1,prootfile);
-    printf("\n\nLeitura da variavel usuario realizada");
-    while (check_arrays(name,exemple.senha) == 0)
+
+    if ((prootfile = fopen("root.txt","ab+")) == NULL)
     {
-       printf("\n\nsenha incorreta");
-       status--;
-       printf("\n\nvocê tem mais %d tentativas\nCaso você erre asenha mais 2 vezes, todos os arquivos serão apagados",status);
-       if (status == 0);
-       {
-        //chama a função de corromper arquivos
-       }
-       
+        printf("\nNao foi possível abrir o arquivo root no modo de adicao +");
     }
-    printf("\n\n Login efeituado com sucesso");
-    user_token = exemple.token;
-    
-   
+    else
+    {
+        //fseek transloca ponteiro para endereço retornado pela função achar index que foi guardada na vairável de endereço temporario
+        fseek(prootfile,temp_addres,SEEK_SET);
+
+
+        printf("\n\ntranslacao para o endereco temporario realizada com sucesso");
+
+        // lê a variável encontrada no arquivo
+        fread(&exemple,sizeof(usuario),1,prootfile);
+        printf("\n\nLeitura da variavel usuario realizada");
+
+
+        //alocação de memória para string
+        char *senha = (char*) malloc(sizeof(char));
+
+        //chamada de função para usuário preencher a string
+        fillstring(senha);
+        print_array(senha);
+
+        //enquanto a função de comparação de arrays não receber uma senha igual á que foi registrada
+        while (checkArrays(name,exemple.senha) == 0)
+        {
+            //mensagemq que mostra que a sena está errada
+            printf("\n\nsenha incorreta");
+
+            //atualiza contador de  acoro com a quantidade de tentativas restantes
+            status--;
+
+            //informa quantas tentativas reatntes o usuário ainda tem
+            printf("\n\nvocê tem mais %d tentativas\nCaso você erre asenha mais 2 vezes, todos os arquivos serão apagados",status);
+
+            fillstring(senha);
+
+            //se o contador zerar, a função de corromper arquivos é chamada
+            if (status == 0);
+            {
+                //chama a função de corromper arquivos
+            }
         
-   
+        }
+
+        //Informa ao usuário que o login foi efetuado com sucesso
+        printf("\n\n Login efeituado com sucesso");
+        user_token = exemple.token;
+    }
+    fclose(prootfile);
+    fclose(pindex);
 }
 
 //função para criar nome e senha e registralos nos arquivos de registro e indexador
 void criar_usuario(FILE *rootfile, FILE *fIndex)
 {
     //checa se a abertura do arquivo root em leitua e escrita pode ser feita
-    if ((rootfile = fopen("root.txt","rb+")) == NULL)
+    if ((rootfile = fopen("root.txt","ab+")) == NULL)
     {
         printf("O arquivo root não pode ser aberto no modo de leitura e escrita");
     }
     else
     {
-        printf("Abertura do arquivo root realizada com sucesso");
+        printf("\nAbertura do arquivo root realizada com sucesso");
     }
     
    
    //se a abertura do rquivo indexador no modo de leitura não poder ser realizada
-     if ((fIndex = fopen("index.txt","rb+")) == NULL)
+     if ((fIndex = fopen("index.txt","ab+")) == NULL)
     {
-        printf("Arquivo indez não pôde ser aberto no modo de leitura binaria+");
+        printf("Arquivo index nao pôde ser aberto no modo de adição e leitura binaria+");
     }
     else
     {
@@ -421,8 +477,13 @@ void criar_usuario(FILE *rootfile, FILE *fIndex)
         //variável para gurdar endereço temporário
         long int tempaddres;
 
+        char *arquivoquant = (char*) malloc(sizeof(char));
+        printf("Digite qual o nome do arquivo que contera a quantidade de usuarios registrados\n");
+        fillstring(arquivoquant);
+
+
         //recebe endereço retornado pela função que buscou o arquivo que contem a quntidade de usuários registrada
-        tempaddres = Achrindex("quantUsuarios",fIndex);
+        tempaddres = Achrindex(arquivoquant,fIndex);
 
         //transloca ponteiro para edereço retornado pela função que foi guardado na variável temporária
         fseek(rootfile,tempaddres,SEEK_SET);
@@ -436,24 +497,42 @@ void criar_usuario(FILE *rootfile, FILE *fIndex)
         //se a quantidade de usuários criada for 0
         if(exemple.quantity == 0)
         {
+            printf("A quantidade de usuarios registrada e %d",exemple.quantity);
+
             //cria uma estrutura de usuário para o primeiro usuário (root)
             usuario root;
-            root.token = 999;
-            conv_str_aray(userR, root.user_name);
-            conv_str_aray(senhaR,root.senha);
 
-            //escreve o registro de usuário root em root_file
+            //preenche seu token com 999
+            root.token = 999;
+
+            //converte a string de userR para o campo username da estrutura criada
+            root.username = userR;
+
+            //converte a string de userR para o campo senha da estrutura criada
+            root.senha = senhaR;
+
+                //alternativa de uso de função para caso não funcione a escrita com ponteiros
+            //conv_str_aray(userR, root.user_name);
+            //conv_str_aray(senhaR,root.senha);
+
+           // Uma variável temporária recebe o endereço da atual posição de escrita em rootfile
             long int temp_addres = ftell(rootfile);
+           
+            //escreve o registro de usuário root em root_file
             fwrite(&root,sizeof(usuario),1,rootfile);
+
+                //verssão alternativa de escrita que não deve ser usada caso escrita de ponteiros pela função fwrite não funcione
             //long int temp_addres = adapted_fwrite_user(root,rootfile);
             
             //cria variável do tipo indexador e a preenche com nome e o endereço do registro de usuário root no arquivo root
             rindex index;
-            conv_str_aray("usuario_root",index.filename);
+            index.filename = userR;
+            //conv_str_aray("usuario_root",index.filename);
             index.adress = temp_addres;
 
             //escreve  a variável no arquivo indexador
-            adapted_fwrite_index(index,fIndex);
+            fwrite(&index,sizeof(rindex),1,fIndex);
+            //adapted_fwrite_index(index,fIndex);
             
         
         }
@@ -463,28 +542,41 @@ void criar_usuario(FILE *rootfile, FILE *fIndex)
         {
             usuario comum;
             comum.token = (exemple.quantity + 1);
-            conv_str_aray(userR,comum.user_name);
-            conv_str_aray(senhaR,comum.senha );
-            long int temp_addres = adapted_fwrite_user(comum,rootfile);
-            fclose(fIndex);
 
-            if ((fIndex =fopen("index.txt", "rb+")) == NULL)
-            {   
-                rindex index;
-                index.adress = temp_addres;
-                conv_str_aray(userR,index.filename);
-                adapted_fwrite_index(index,fIndex);
-            }
+            // estrutura de usuário comum recebe nome e senha de userR e senhaR
+            comum.username = userR;
+            comum.senha = senhaR;
+
+                    //modo diferente de pasar falores caso não possa ser feita escrita por ponteiro
+            // conv_str_aray(userR,comum.username);
+            // conv_str_aray(senhaR,comum.senha );
+
+
+            long int temp_addres = ftell(rootfile);
+
+
+            fwrite(&comum,sizeof(usuario),1, rootfile);
+             
+            //cria variável do tipo d eregistro indexador
+            rindex index;
+
+            //o campo de endereço da variável recebe endereço guardado da variável temporária
+            index.adress = tempaddres;
+
+            //campo de nome de arquivo recebe nome guardado por UserR
+            //conv_str_aray(userR,index.filename);
+            index.filename = userR;
+
+            //escreve variável no arquivo indexador
+            fwrite(&index,sizeof(rindex),1,fIndex);
+            
         }
     }
+    fclose(fIndex);
+    fclose(rootfile);
     
 }
 
-
-    
-    
-    
-    
 //função para criar senha
 void criarSenha(char *retorno)
 {
@@ -493,7 +585,7 @@ void criarSenha(char *retorno)
     
 
     //mensagem para usuário inserir a senha
-    printf("\n\nDigite a senha\n");
+    printf("\n\nDigite a senha desejada\n");
 
     //chama a função criar arays para fazer a senha
     fillstring(teste);
@@ -505,12 +597,12 @@ void criarSenha(char *retorno)
     fillstring(retorno);
 
     // Loop que compara as senhas, caso elas sejam diferentes pede ao usuário para reescreve-las
-    while(check_arrays(teste,retorno) == 0)
+   while(checkArrays(teste,retorno) == 0)
     {
-        printf("\n\nA senha precisa ser igual a digitada anterioremente\n");
-        printf("\n\nDigite a senha\n");
+        printf("\nA senha precisa ser igual a digitada anterioremente\n");
+        printf("\nDigite a senha desejada\n");
         fillstring(teste);
-        printf("\n\nDigite a senha novamente\n");
+        printf("\nDigite a senha novamente\n");
         fillstring(retorno);
     }
     
@@ -546,63 +638,46 @@ void criarUserName(char *aray)
 
 
 
-//função de fwrite adaptada para o tipo de estrutura usuário
-long int adapted_fwrite_user( usuario variavel,FILE *file_arquivo)
-{
-    long int return_addres = ftell(file_arquivo);
-    fwrite(&variavel,sizeof(usuario),1,file_arquivo);
-    return return_addres;
-}
-
-//função de fwrite adaptada para o tipo de estrutura de registro indexador
-int adapted_fwrite_index( rindex variavel,FILE *file_arquivo)
-{
-
-   fwrite(&variavel,sizeof(rindex),1,file_arquivo);
-}
-
-//função de fwrite adaptada para o tipo de estrutura quantidade de usuário
-long int adapted_fwrite_quantity( quantity variavel,FILE *file_arquivo)
-{
-    long int return_addres = ftell(file_arquivo);
-    fwrite(&variavel,sizeof(quantity),1,file_arquivo);
-    return return_addres;
-}
-
 //função que busca registros de arquivos indexadore por nome e retorna endereço no arquivo root
 long int Achrindex(char *nomearquivo, FILE *pfile)
 {
-     if ((pfile = fopen("index.txt","rb+")) == NULL)
+     if ((pfile = fopen("index.txt","rb")) == NULL)
     {
-        printf("Arquivo indexador aberto com sucesso no mo de escrita");
-
+        printf("Houve um problema ao abrir o arquivo indexador no mode de leitura binaria");
     }
     else
     {
         
         printf("\n\nentrou na funcao achindex");
 
-        rindex exemple;
-
         printf("\n\ncricou a variavel de exemplo");
-
+        rindex exemple;
+        
+        printf("\no nome do arquivo e %s",nomearquivo);
         rewind(pfile);
 
         printf("\n\nresetou o ponteiro");
+        fseek(pfile, 0 ,SEEK_SET);
 
-        while(fread(&exemple,sizeof(rindex), 1, pfile) == 1)
+        while((fread(&exemple,sizeof(rindex),1,pfile)) == 1)
         {
-            printf("\n\nentrou no loop\n");
+            printf("\n\nentrou no loop de leitura\n");
+
+            printf("\no nome de exemple depois de lido e %s ",exemple.filename);
 
             long int retorno;
 
-            int cont = 0;
+            //int cont = 0;
+           
 
             retorno = exemple.adress;
+            char *temp = (char*) malloc(sizeof(char));
+            temp = exemple.filename;
+            printf("\no valor retornado pela variavel exemple.addres e %ld",retorno);
 
-            print_array(exemple.filename);
+            int i = checkArrays(temp,nomearquivo);
 
-            if(check_arrays(exemple.filename,nomearquivo) == 1)
+            if(  i == 1)
             {
                 fclose(pfile);
                 return retorno;
@@ -610,21 +685,25 @@ long int Achrindex(char *nomearquivo, FILE *pfile)
 
             else
             {
-            fseek(pfile,sizeof(rindex),SEEK_CUR);
+                if (fseek(pfile,sizeof(rindex),SEEK_CUR) == 0)
+                {
+                    printf("\nfuncao fseek funcionou corretamente");
+                }
             }
 
-            printf("\n saiu do loop\n");
+           
         }
+
+        printf("\n saiu do loop de leitura\n");
+
+        fclose(pfile);
+
+        return -1;
     }
-    fclose(pfile);
-    return 0;
+    
 }
 
-int adaptative_fwrite_txt( txt variavel,FILE *file_arquivo)
-{
 
-   fwrite(&variavel,sizeof(txt),1,file_arquivo);
-}
 
 /*void MenuInicial(void)
 
